@@ -7,10 +7,10 @@ class Node:
 
 class BinarySearchTree:
     def __init__(self):
-        self._node = None
+        self.root = None
 
     def __contains__(self, value):
-        cur = self._node
+        cur = self.root
         while cur:
             if value < cur.value:
                 cur = cur.left
@@ -21,9 +21,9 @@ class BinarySearchTree:
         return False 
 
     def add(self, value):
-        cur = self._node
+        cur = self.root
         if cur is None:
-            self._node = Node(value)
+            self.root = Node(value)
             return
         while cur:
             if value < cur.value:
