@@ -5,6 +5,11 @@ description = ""
 authors = ["fgshun <fgshun@gmail.com>"]
 readme = "README.md"
 
+[tool.poetry.build]
+script = "build.py"
+generate-setup-file = true
+
+
 [tool.poetry.dependencies]
 python = "^3.11"
 pytest = "^7.4.3"
@@ -13,5 +18,5 @@ mypy = "^1.7.1"
 
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core", "setuptools"]
 build-backend = "poetry.core.masonry.api"
