@@ -40,7 +40,7 @@ class BinarySearchTree:
         if cur is None:
             self.root = Node(value)
             return
-        while cur:
+        while True:
             if value < cur.value:
                 if cur.left is None:
                     cur.left = Node(value)
