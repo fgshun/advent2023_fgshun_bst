@@ -25,3 +25,15 @@ def test_bst_str():
 
     for c in string.ascii_letters:
         assert (c in tree) is (c in py_set)
+
+
+def test_bst_iter():
+    values = [3, 1, 4, 1, 5, 9]
+
+    tree = BinarySearchTree()
+    for c in values:
+        tree.add(c)
+
+    for a, b in zip(sorted(frozenset(values)), tree):
+        assert a == b
+

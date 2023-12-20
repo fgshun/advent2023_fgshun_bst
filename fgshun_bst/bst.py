@@ -9,6 +9,21 @@ class BinarySearchTree:
     def __init__(self):
         self.root = None
 
+    @classmethod
+    def _iternodes(cls, node):
+        if node is not None:
+            yield from cls._iternodes(node.left)
+            yield node
+            yield from cls._iternodes(node.right)
+
+    def __len__(self):
+        nodes = self._iternodes(self.root)
+        return sum(1 for node in nodes)
+
+    def __iter__(self):
+        nodes = self._iternodes(self.root)
+        return (node.value for node in nodes)
+
     def __contains__(self, value):
         cur = self.root
         while cur:
