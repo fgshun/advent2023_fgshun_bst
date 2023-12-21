@@ -1,9 +1,10 @@
 [tool.poetry]
 name = "fgshun-bst"
 version = "0.1.0"
-description = ""
+description = "アドベントカレンダー『Python/C API で 素朴な二分探索木を書いてみる』用"
 authors = ["fgshun <fgshun@gmail.com>"]
 readme = "README.md"
+license = "MIT"
 
 [tool.poetry.build]
 script = "build.py"
