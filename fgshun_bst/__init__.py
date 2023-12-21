@@ -1,1 +1,1 @@
-from .bst import BinarySearchTree
+from ._bst import BinarySearchTree

@@ -1,6 +1,6 @@
 import string
 
-from fgshun_bst.bst import BinarySearchTree
+from fgshun_bst._bst import BinarySearchTree
 
 
 def test_bst_int():
