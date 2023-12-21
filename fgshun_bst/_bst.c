@@ -75,7 +75,9 @@ bst_dealloc_inner(Node *node)
     if (node == NULL) { return; }
 
     bst_dealloc_inner(node->left);
+    node->left = NULL;
     bst_dealloc_inner(node->right);
+    node->right = NULL;
     PyMem_Free(node);
 }
 
@@ -86,6 +88,7 @@ bst_dealloc(BinarySearchTreeObject *self)
     PyObject_GC_UnTrack(self);
     bst_clear(self);
     bst_dealloc_inner(self->root);
+    self->root = NULL;
     PyObject_GC_Del(self);
 }
 
