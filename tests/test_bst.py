@@ -47,6 +47,20 @@ def test_bst_iter(BinarySearchTree):
         assert a == b
 
 
+def test_bst_iter2(BinarySearchTree):
+    r = random.Random(20231221)
+    values = []
+    for i in (r.randint(0, 10000000) for _ in range(10000)):
+        values.append(i)
+
+    tree = BinarySearchTree()
+    for c in values:
+        tree.add(c)
+
+    for a, b in zip(sorted(frozenset(values)), tree):
+        assert a == b
+
+
 def test_bst_more_items(BinarySearchTree):
     tree = BinarySearchTree()
     r = random.Random(20231221)
