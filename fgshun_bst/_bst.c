@@ -2,28 +2,241 @@
 #include <Python.h>
 
 
-static int bst_exec(PyObject *module) {
-    if (PyModule_AddIntConstant(module, "one", 1)) { goto error; }
+typedef struct NODE {
+    PyObject *value;
+    struct NODE *left;
+    struct NODE *right;
+} Node;
+
+
+typedef struct {
+    PyObject_HEAD
+    Node *root;
+} BinarySearchTreeObject;
+
+
+static PyObject *
+bst_new(PyTypeObject *subtype, PyObject *args, PyObject *kwargs)
+{
+    static char *kwlist[] = {NULL};
+    BinarySearchTreeObject *self;
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "", kwlist)) { return NULL; }
+
+    self = PyObject_GC_New(BinarySearchTreeObject, subtype);
+    if (!self) { return NULL; }
+    self->root = NULL;
+    PyObject_GC_Track(self);
+
+    return (PyObject *)self;
+}
+
+
+static void
+bst_traverse_inner(Node *node, visitproc visit, void *arg)
+{
+    if (node == NULL) { return; }
+
+    bst_traverse_inner(node->left, visit, arg);
+    bst_traverse_inner(node->right, visit, arg);
+    Py_VISIT(node->value);
+}
+
+
+static int
+bst_traverse(BinarySearchTreeObject *self, visitproc visit, void *arg)
+{
+    bst_traverse_inner(self->root, visit, arg);
+    return 0;
+}
+
+
+static void
+bst_clear_inner(Node *node)
+{
+    if (node == NULL) { return; }
+
+    bst_clear_inner(node->left);
+    bst_clear_inner(node->right);
+    Py_CLEAR(node->value);
+}
+
+
+static int
+bst_clear(BinarySearchTreeObject *self)
+{
+    bst_clear_inner(self->root);
+    return 0;
+}
+
+
+static void
+bst_dealloc_inner(Node *node)
+{
+    if (node == NULL) { return; }
+
+    bst_dealloc_inner(node->left);
+    bst_dealloc_inner(node->right);
+    PyMem_Free(node);
+}
+
+
+static void
+bst_dealloc(BinarySearchTreeObject *self)
+{
+    PyObject_GC_UnTrack(self);
+    bst_clear(self);
+    bst_dealloc_inner(self->root);
+    PyObject_GC_Del(self);
+}
+
+
+static Py_ssize_t
+bst_len_inner(Node *node)
+{
+    if (node == NULL) {
+        return 0;
+    }
+
+    return bst_len_inner(node->left) + bst_len_inner(node->right) + 1;
+}
+
+
+static Py_ssize_t
+bst_len(BinarySearchTreeObject *self)
+{
+    if (self->root == NULL) {
+        return 0;
+    }
+
+    return bst_len_inner(self->root);
+}
+
+
+static PyObject *
+bst_iter(BinarySearchTreeObject *self)
+{
+    /* TODO */
+    Py_RETURN_NONE;
+}
+
+
+static int
+bst_contains(BinarySearchTreeObject *self, PyObject *value)
+{
+    return 0;
+}
+
+
+static PyObject *
+bst_add(BinarySearchTreeObject *self, PyObject *value)
+{
+    Node *cur = self->root;
+    if (cur == NULL) {
+        cur = PyMem_Calloc(sizeof(Node), 1);
+        if (cur == NULL) { return NULL; }
+        Py_INCREF(value);
+        cur->value = value;
+        self->root = cur;
+        Py_RETURN_NONE;
+    }
+
+    while (1) {
+        switch (PyObject_RichCompareBool(value, cur->value, Py_LT)) {
+        case 1:
+            /* value < cur->value */
+            if (cur->left == NULL) {
+                cur->left = PyMem_Calloc(sizeof(Node), 1);
+                if (cur->left == NULL) { return NULL; }
+                Py_INCREF(value);
+                cur->left->value = value;
+                Py_RETURN_NONE;
+            } else {
+                cur = cur->left;
+            }
+            break;
+        case 0:
+            switch (PyObject_RichCompareBool(cur->value, value, Py_LT)) {
+            case 1:
+                /* cur->value < value */
+                if (cur->right == NULL) {
+                    cur->right = PyMem_Calloc(sizeof(Node), 1);
+                    if (cur->right == NULL) { return NULL; }
+                    Py_INCREF(value);
+                    cur->right->value = value;
+                    Py_RETURN_NONE;
+                } else {
+                    cur = cur->right;
+                }
+                break;
+            case 0:
+                /* value == cur->value */
+                Py_RETURN_NONE;
+                break;
+            default:
+                return NULL;
+            }
+            break;
+        default:
+            return NULL;
+        }
+    }
+}
+
+
+static PyMethodDef bst_methods[] = {
+    {"add", (PyCFunction)bst_add, METH_O, NULL},
+    {NULL, NULL, 0, NULL} /* Sentinel */
+};
+
+
+static PyType_Slot bst_slots[] = {
+    {Py_tp_methods, bst_methods},
+    {Py_tp_new, bst_new},
+    {Py_tp_iter, (getiterfunc)bst_iter},
+    {Py_tp_dealloc, bst_dealloc},
+    {Py_tp_traverse, bst_traverse},
+    {Py_tp_clear, bst_clear},
+    {Py_sq_contains, bst_contains},
+    {Py_sq_length, bst_len},
+    {0, 0},
+};
+
+
+static PyType_Spec bst_spec = {
+    .name = "fgshun_bst.BinarySearchTree",
+    .basicsize = sizeof(BinarySearchTreeObject),
+    .flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    .slots = bst_slots,
+};
+
+
+static int moddef_exec(PyObject *module) {
+    PyObject *bst_type;
+
+    bst_type = PyType_FromSpec(&bst_spec);
+    if (!bst_type) { goto error; }
+    if (PyModule_AddObject(module, "BinarySearchTree", bst_type)) { goto error; }
     return 0;
 error:
+    Py_XDECREF(bst_type);
     Py_DECREF(module);
     return -1;
 }
 
 
-static PyModuleDef_Slot bst_slots[] = {
-    {Py_mod_exec, bst_exec},
+static PyModuleDef_Slot moddef_slots[] = {
+    {Py_mod_exec, moddef_exec},
     {0, NULL}
 };
 
 
-static struct PyModuleDef bst_module = {
+static struct PyModuleDef moddef_module = {
     PyModuleDef_HEAD_INIT,
     .m_name = "_bst",
-    .m_slots = bst_slots,
+    .m_slots = moddef_slots,
 };
 
 
 PyMODINIT_FUNC PyInit__bst(void) {
-    return PyModuleDef_Init(&bst_module);
+    return PyModuleDef_Init(&moddef_module);
 }
