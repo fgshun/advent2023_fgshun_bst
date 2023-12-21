@@ -112,11 +112,28 @@ bst_len(BinarySearchTreeObject *self)
 }
 
 
+static void
+bst_iter_inner(Node *node, PyObject *temp)
+{
+    if (node == NULL) { return; }
+
+    bst_iter_inner(node->left, temp);
+    PyList_Append(temp, node->value);
+    bst_iter_inner(node->right, temp);
+}
+
+
 static PyObject *
 bst_iter(BinarySearchTreeObject *self)
 {
-    /* TODO */
-    Py_RETURN_NONE;
+    PyObject *temp;
+    if (!(temp = PyList_New(0))) { return NULL; }
+
+    bst_iter_inner(self->root, temp);
+
+    PyObject *iter = PyObject_GetIter(temp);
+    Py_XDECREF(temp);
+    return iter;
 }
 
 
