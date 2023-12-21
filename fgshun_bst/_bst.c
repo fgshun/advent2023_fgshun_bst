@@ -123,6 +123,27 @@ bst_iter(BinarySearchTreeObject *self)
 static int
 bst_contains(BinarySearchTreeObject *self, PyObject *value)
 {
+    Node *cur = self->root;
+    while (cur) {
+        switch (PyObject_RichCompareBool(value, cur->value, Py_LT)) {
+        case 1:
+            cur = cur->left;
+            break;
+        case 0:
+            switch (PyObject_RichCompareBool(cur->value, value, Py_LT)) {
+            case 1:
+                cur = cur->right;
+                break;
+            case 0:
+                return 1;
+            default:
+                return -1;
+            }
+            break;
+        default:
+            return -1;
+        }
+    }
     return 0;
 }
 
