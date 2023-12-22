@@ -31,14 +31,15 @@ bst_new(PyTypeObject *subtype, PyObject *args, PyObject *kwargs)
 }
 
 
-static void
+static int
 bst_traverse_inner(Node *node, visitproc visit, void *arg)
 {
-    if (node == NULL) { return; }
+    if (node == NULL) { return 0; }
 
     bst_traverse_inner(node->left, visit, arg);
     bst_traverse_inner(node->right, visit, arg);
     Py_VISIT(node->value);
+    return 0;
 }
 
 
