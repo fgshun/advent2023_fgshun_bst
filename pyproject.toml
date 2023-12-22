@@ -8,6 +8,7 @@ license = "MIT"
 
 [tool.poetry.build]
 script = "build.py"
+generate-setup-file = true
 
 
 [tool.poetry.dependencies]
