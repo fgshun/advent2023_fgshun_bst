@@ -46,8 +46,7 @@ bst_traverse_inner(Node *node, visitproc visit, void *arg)
 static int
 bst_traverse(BinarySearchTreeObject *self, visitproc visit, void *arg)
 {
-    bst_traverse_inner(self->root, visit, arg);
-    return 0;
+    return bst_traverse_inner(self->root, visit, arg);
 }
 
 
