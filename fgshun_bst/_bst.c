@@ -235,8 +235,17 @@ bst_add(BinarySearchTreeObject *self, PyObject *value)
 }
 
 
+static PyObject *
+simple_class_getitem(PyObject *type, PyObject *item)
+{
+    Py_INCREF(type);
+    return type;
+}
+
+
 static PyMethodDef bst_methods[] = {
     {"add", (PyCFunction)bst_add, METH_O, NULL},
+    {"__class_getitem__", simple_class_getitem, METH_O|METH_CLASS, NULL},
     {NULL, NULL, 0, NULL} /* Sentinel */
 };
 
