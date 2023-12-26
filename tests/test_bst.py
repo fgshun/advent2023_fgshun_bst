@@ -21,7 +21,7 @@ def test_bst_int(BinarySearchTree):
         tree.add(c)
 
     for i in range(10):
-        assert (c in tree) is (c in py_set)
+        assert (i in tree) is (i in py_set)
 
 
 def test_bst_str(BinarySearchTree):
